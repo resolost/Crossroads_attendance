@@ -1,585 +1,783 @@
 <!DOCTYPE html>
 <html>
-  <head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>>
-	  <script src="http://d3js.org/queue.v1.min.js"></script>
-	    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
 
-  </head>
-  <style>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>>
+  <script src="http://d3js.org/queue.v1.min.js"></script>
+  <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
 
-  div.tooltip {   
-    position: absolute;           
-    text-align: center;           
-    width: 45px;                  
-    height: 12px;                 
-    padding: 4px;             
-    font: 12px sans-serif;        
-    background: grey;   
-    border: 0px;      
-    border-radius: 2px;           
-    pointer-events: none;  
-	-webkit-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
-	-moz-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);       
+</head>
+<style>
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 45px;
+    height: 12px;
+    padding: 4px;
+    font: 12px sans-serif;
+    background: grey;
+    border: 0px;
+    border-radius: 2px;
+    pointer-events: none;
+    -webkit-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
   }
+
   .axis path,
   .axis line {
-      fill: none;
-      stroke: black;
-      shape-rendering: crispEdges;
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
   }
 
   .axis text {
-      font-family: sans-serif;
-      font-size: 11px;
+    font-family: sans-serif;
+    font-size: 11px;
   }
-  </style>
-  <body>
-	  <br>
-	  <table id=legend class="pure-table pure-table-horizontal" align="center">
-		  <thead bgcolor="lightgrey">
-	    <tr id=legend>
-			<td align="center" >Site </td>
-			<td align="center"><span id="week">Ã¢â‚¬Â¦</span><br> Attendance </td>
-			<td align="center">Last Week <br>Attendance </td>
-			<td align="center">8 Week Change </td>
-			<td align="center">1 Year Change</td>
-			</thead>
-	      <tr ID=Church_total bgcolor="white">
-			  <td align="left">Church Total</td>
-			  <td align="center"> <span id="All_total">Ã¢â‚¬Â¦</span> </td>
-			  <td align="center"> <span id="All_total_last">Ã¢â‚¬Â¦</span> </td>
-  			<td align="center">  <span id="eight_week_percent_total">Ã¢â‚¬Â¦</span>% </td>
-  			<td align="center"><span id="year_percent">Ã¢â‚¬Â¦</span>%</td>
-		  </tr>
-	      <tr ID=oakley bgcolor="white">
-			  <td align="right">Oakley  </td>
-			  <td align="center"> <span id="oakley_total">Ã¢â‚¬Â¦</span> </td>
-			  <td align="center"> <span id="oakley_total_last">Ã¢â‚¬Â¦</span> </td>
-  			<td align="center">  <span id="oakley_eight_week_percent">Ã¢â‚¬Â¦</span>% </td>
-  			<td align="center"><span id="oakley_year_percent">Ã¢â‚¬Â¦</span>%</td>
-		  </tr>
-	      <tr ID=florence bgcolor="white">
-			  <td align="right">Florence  </td>
-			  <td align="center"> <span id="florence_total">Ã¢â‚¬Â¦</span> </td>
-			  <td align="center"> <span id="florence_total_last">Ã¢â‚¬Â¦</span> </td>	
-  			<td align="center">  <span id="florence_eight_week_percent">Ã¢â‚¬Â¦</span>% </td>
-  			<td align="center"><span id="florence_year_percent">Ã¢â‚¬Â¦</span>%</td>	  
-		  </tr>
-		  <tr ID=west bgcolor="white">
-			  <td align="right">West Side  </td>
-			  <td align="center"> <span id="west_total">Ã¢â‚¬Â¦</span> </td>
-			  <td align="center"> <span id="west_total_last">Ã¢â‚¬Â¦</span> </td>
-  			<td align="center">  <span id="west_eight_week_percent">Ã¢â‚¬Â¦</span>% </td>
-  			<td align="center"><span id="west_year_percent">Ã¢â‚¬Â¦</span>%</td>
-		  </tr>
-		  <tr ID=clifton bgcolor="white">
-			  <td align="right">Clifton  </td>
-			  <td align="center"> <span id="clifton_total">Ã¢â‚¬Â¦</span> </td>
-			  <td align="center"> <span id="clifton_total_last">Ã¢â‚¬Â¦</span> </td>
-  			<td align="center">  <span id="clifton_eight_week_percent">Ã¢â‚¬Â¦</span>% </td>
-  			<td align="center"><span id="clifton_year_percent">Ã¢â‚¬Â¦</span>%</td>
-		  </tr>
-		  <tr ID=mason bgcolor="white">
-			  <td align="right">Mason  </td>
-			  <td align="center"> <span id="mason_total">Ã¢â‚¬Â¦</span> </td>
-			  <td align="center"> <span id="mason_total_last">Ã¢â‚¬Â¦</span> </td>
-  			<td align="center">  <span id="mason_eight_week_percent">Ã¢â‚¬Â¦</span>% </td>
-  			<td align="center"><span id="mason_year_percent">Ã¢â‚¬Â¦</span>%</td>
-		  </td>
-	    </tr>
-	  </table>
-	  <table id=svg style="width:800px" align="center">  
-		  <tr id=svg bgcolor="white">
-		  </tr>
-		
-		
-		  
-	  </table>
-	  
-	  <table id=scale style="width:50%" align="center">
-	    <tr id=scale bgcolor="white">
-  			<td > </td><td > Time Scale: </td><td > </td><td > </td><td > </td><td > </td><td > </td><td > </td><td > </td><td > </td>
-  	      <td ID=m3>3 Month</td>
-  	      <td ID=m6>6 Month</td>
-  		  <td ID=m12>12 Month</td>
-  		  <td ID=mall>All</td>
-  	    </tr>
-  	  </table>
+</style>
+
+<body>
+  <br>
+  <table id=legend class="pure-table pure-table-horizontal" align="center">
+    <thead bgcolor="lightgrey">
+      <tr id=legend>
+        <td align="center">Site </td>
+        <td align="center">
+          <span id="week">Ã¢â‚¬Â¦</span>
+          <br> Attendance </td>
+        <td align="center">Last Week
+          <br>Attendance </td>
+        <td align="center">8 Week Change </td>
+        <td align="center">1 Year Change</td>
+    </thead>
+    <tr ID=Church_total bgcolor="white">
+      <td align="left">Church Total</td>
+      <td align="center">
+        <span id="All_total">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="All_total_last">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="eight_week_percent_total">Ã¢â‚¬Â¦</span>% </td>
+      <td align="center">
+        <span id="year_percent">Ã¢â‚¬Â¦</span>%</td>
+    </tr>
+    <tr ID=oakley bgcolor="white">
+      <td align="right">Oakley </td>
+      <td align="center">
+        <span id="oakley_total">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="oakley_total_last">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="oakley_eight_week_percent">Ã¢â‚¬Â¦</span>% </td>
+      <td align="center">
+        <span id="oakley_year_percent">Ã¢â‚¬Â¦</span>%</td>
+    </tr>
+    <tr ID=florence bgcolor="white">
+      <td align="right">Florence </td>
+      <td align="center">
+        <span id="florence_total">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="florence_total_last">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="florence_eight_week_percent">Ã¢â‚¬Â¦</span>% </td>
+      <td align="center">
+        <span id="florence_year_percent">Ã¢â‚¬Â¦</span>%</td>
+    </tr>
+    <tr ID=west bgcolor="white">
+      <td align="right">West Side </td>
+      <td align="center">
+        <span id="west_total">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="west_total_last">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="west_eight_week_percent">Ã¢â‚¬Â¦</span>% </td>
+      <td align="center">
+        <span id="west_year_percent">Ã¢â‚¬Â¦</span>%</td>
+    </tr>
+    <tr ID=clifton bgcolor="white">
+      <td align="right">Clifton </td>
+      <td align="center">
+        <span id="clifton_total">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="clifton_total_last">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="clifton_eight_week_percent">Ã¢â‚¬Â¦</span>% </td>
+      <td align="center">
+        <span id="clifton_year_percent">Ã¢â‚¬Â¦</span>%</td>
+    </tr>
+    <tr ID=mason bgcolor="white">
+      <td align="right">Mason </td>
+      <td align="center">
+        <span id="mason_total">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="mason_total_last">Ã¢â‚¬Â¦</span>
+      </td>
+      <td align="center">
+        <span id="mason_eight_week_percent">Ã¢â‚¬Â¦</span>% </td>
+      <td align="center">
+        <span id="mason_year_percent">Ã¢â‚¬Â¦</span>%</td>
+      </td>
+    </tr>
+  </table>
+  <table id=svg style="width:800px" align="center">
+    <tr id=svg bgcolor="white">
+    </tr>
+
+
+
+  </table>
+
+  <table id=scale style="width:50%" align="center">
+    <tr id=scale bgcolor="white">
+      <td> </td>
+      <td> Time Scale: </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td ID=m3>3 Month</td>
+      <td ID=m6>6 Month</td>
+      <td ID=m12>12 Month</td>
+      <td ID=mall>All</td>
+    </tr>
+  </table>
 
   <script>
-	
+    var maxX = new Date();
+    var minX = d3.time.month.offset(maxX, -6);
+    //svgContainer = d3.select("tr#svg").selectAll("svg")
 
-  	var maxX = new Date();
-  	var minX = d3.time.month.offset(maxX, -6);
- 	//svgContainer = d3.select("tr#svg").selectAll("svg")
- 
-queue()
-	  .defer(d3.csv,"Attendance.csv")
-	  .await(ready);
-		  
-		  
-function ready(error,result) { 
-
- 	attendance_data = result.map(function(d) { return {
-		Site: d.Site, 
-		date: d3.time.format("%m/%d/%Y").parse(d.Date), 
-		Ministry: d.Ministry, 
-		Service1: +d["Service 1 # of Attendees"],
-		Service2: +d["Service 2 # of Attendees"],
-		Service3: +d["Service 3 # of Attendees"],
-		Service4: +d["Service 4 # of Attendees"],
-		Service5: +d["Service 5 # of Attendees"],
-		Service1_Volunteers: +d["Service 1 # of Volunteers"],
-		Service2_Volunteers: +d["Service 2 # of Volunteers"],
-		Service3_Volunteers: +d["Service 3 # of Volunteers"],
-		Service4_Volunteers: +d["Service 4 # of Volunteers"],
-		Service5_Volunteers: +d["Service 5 # of Volunteers"],
-		Service1_Paid: +d["Service 1 # of Paid"],		
-		Service2_Paid: +d["Service 2 # of Paid"],		
-		Service3_Paid: +d["Service 3 # of Paid"],		
-		Service4_Paid: +d["Service 4 # of Paid"],
-		Service5_Paid: +d["Service 5 # of Paid"],
-		Total_Adults: +d["Service 1 # of Attendees"] + +d["Service 2 # of Attendees"] + +d["Service 3 # of Attendees"] + +d["Service 4 # of Attendees"] + +d["Service 5 # of Attendees"],
-		Total_Volunteers: +d["Service 1 # of Volunteers"] + +d["Service 2 # of Volunteers"] + +d["Service 3 # of Volunteers"] + +d["Service 4 # of Volunteers"] + +d["Service 5 # of Volunteers"],
-		Total_Paid: +d["Service 1 # of Paid"] + +d["Service 2 # of Paid"] + +d["Service 3 # of Paid"] + +d["Service 4 # of Paid"] + +d["Service 5 # of Paid"],	
-		Total: 	+d["Service 1 # of Attendees"] + +d["Service 2 # of Attendees"] + +d["Service 3 # of Attendees"] + +d["Service 4 # of Attendees"] + +d["Service 5 # of Attendees"] + +d["Service 1 # of Volunteers"] + +d["Service 2 # of Volunteers"] + +d["Service 3 # of Volunteers"] + +d["Service 4 # of Volunteers"] + +d["Service 5 # of Volunteers"] + +d["Service 1 # of Paid"] + +d["Service 2 # of Paid"] + +d["Service 3 # of Paid"] + +d["Service 4 # of Paid"] + +d["Service 5 # of Paid"],
-		Ministry: d.Ministry,
-		date_week: d3.time.sundayOfYear(d3.time.day.offset(d3.time.format("%m/%d/%Y").parse(d.Date),-1))
-	
-	}})
-	
-	
-	
-	//get current week
-	week = d3.time.sundayOfYear(d3.time.day.offset(new Date(),-1))
-	format = d3.time.format("%m/%d/%Y")
-	week_name = format(d3.time.sunday(d3.time.day.offset(new Date(),-1)))
-	d3.select("#week").text(week_name);
-	
-	
-	function update_table(week, year, attendance_data, site, total_name,total_last_name,year_percent_name,eight_week_name)
-	{
-	
-	//calculate current weeks attendance
-	data = attendance_data.filter(function(d) { return d.date_week == week-1; });
-	if (site == "total") {}
-	else {data = data.filter(function(d) { return d.Site == site; });};
-	data = data.filter(function(d) { return d.date.getYear() == year; });
-	total = d3.sum(data,function(d) {return d.Total;})
-	d3.select(total_name).text(total);
-	//calculate last year percent
-	data = attendance_data.filter(function(d) { return d.date_week == week-1; });
-	if (site == "total") {}
-	else {data = data.filter(function(d) { return d.Site == site; });};
-	data = data.filter(function(d) { return d.date.getYear() == year-1; });
-	year_percent =  100*total / d3.sum(data,function(d) {return d.Total;}) 
-	d3.select(year_percent_name).text(d3.round(year_percent, 0));
-	//calculate 8 week average
-	data = attendance_data.filter(function(d) { return d.date_week == d3.time.sundayOfYear(d3.time.week.offset(new Date(),-8)); });
-	if (site == "total") {}
-	else {data = data.filter(function(d) { return d.Site == site; });};
-	data = data.filter(function(d) { return d.date.getYear() == year; });
-	eight_week_percent = 100*total /d3.sum(data,function(d) {return d.Total;})
-	d3.select(eight_week_name).text(d3.round(eight_week_percent,0));
-	//calculate last weeks attendance
-	data = attendance_data.filter(function(d) { return d.date_week == week-2; });
-	if (site == "total") {}
-	else {data = data.filter(function(d) { return d.Site == site; });};
-	data = data.filter(function(d) { return d.date.getYear() == year; });
-	total = d3.sum(data,function(d) {return d.Total;})
-	d3.select(total_last_name).text(total);
-
-	
-	}
-	
-	update_table(week, 115, attendance_data,"total", "#All_total","#All_total_last","#year_percent","#eight_week_percent_total")
-	update_table(week, 115, attendance_data,"Oakley", "#oakley_total","#oakley_total_last","#oakley_year_percent","#oakley_eight_week_percent")
-	update_table(week, 115, attendance_data,"Florence", "#florence_total","#florence_total_last","#florence_year_percent","#florence_eight_week_percent")
-	update_table(week, 115, attendance_data,"Clifton", "#clifton_total","#clifton_total_last","#clifton_year_percent","#clifton_eight_week_percent")
-	update_table(week, 115, attendance_data,"Mason", "#mason_total","#mason_total_last","#mason_year_percent","#mason_eight_week_percent")	
-	update_table(week, 115, attendance_data,"West Side", "#west_total","#west_total_last","#west_year_percent","#west_eight_week_percent")	
-	
-		
-	
-	
-	var width = 800;
-	var height = 450;
-	
-	
-	var svgContainer = d3.select("tr#svg").append("svg")
-		.attr("width", width)
-		.attr("height", height)
-		.attr("id","graph");
-  
-//initialize scales
-	var maxX = new Date();
-	var minX = d3.time.month.offset(maxX, -6);
-	var maxY = 100;
-
-	var scaleX = d3.time.scale()
-			           .domain([minX,maxX])
-			           .range([50,750]);
-  
-	var scaleY = d3.scale.linear()
-			           .domain([0,maxY])
-			           .range([400,100]);
-					   
-					   
-     var yAxis = d3.svg.axis()
-                       .scale(scaleY)
-                       .orient("right")
-   					.ticks(5);
-					
-  var xAxis = d3.svg.axis()
-                    .scale(scaleX)
-                    .orient("Bottom")
-					.ticks(5);
-					
-					
-			    svgContainer.append("g")
-			  									  .attr("ID","yAxis")
-			        .attr("class", "y axis") //Assign "axis" class
-			        .attr("transform", "translate(750," + (0) + ")")
-			        .call(yAxis);
-	  
-			    svgContainer.append("g")
-			  	  .attr("ID","xAxis")
-			        .attr("class", "x axis") //Assign "axis" class
-			        .attr("transform", "translate(0," + (400) + ")")
-			        .call(xAxis);
-  						
-						
-						svgContainer.append("g").attr("id","line").append("path")	
-						svgContainer.append("g").attr("id","flag1").append("path")
-					svgContainer.select("g#flag1").append("text")
-					//svgContainer.append("g").attr("id","flag1").append("text")
-					
-				    d3.selectAll("tr").transition().duration(300).attr("bgcolor","white")
-					d3.select("tr#oakley").transition().duration(300).attr("bgcolor","lightgreen")  
-					d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor","lightgrey")
-				  	data = attendance_data.filter(function(d) { return d.Site == "Mason"; });	
-					data = data.filter(function(d) { return d.Ministry == "Adults"; });
-					data = data.sort(sortByDateAscending);
-		
-					var maxY = d3.max(data, function(d) { return d.Total; });
-					create_chart(minX,maxX,maxY,data)
-			  		update_axis(minX,maxX,maxY)		
-					
-  
- return {minX};}
-  
-  function attendance_total(d) {return d.Service1 + d.Service2 + d.Service3 + d.Service4 + d.Service5};
-  
-function sortByDateAscending(a, b) {
-    // Dates will be cast to numbers automagically:
-    return a.date - b.date;
-}
-
-  d3.select("tr#mason").on("click", function() {
-  //initialize scales
-	    d3.selectAll("tr").transition().duration(300).attr("bgcolor","white")
-		d3.select(this).transition().duration(300).attr("bgcolor","lightgreen")  
-	  d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor","lightgrey")
-	  	data = attendance_data.filter(function(d) { return d.Site == "Mason"; });	
-		data = data.filter(function(d) { return d.Ministry == "Adults"; });
-		data = data.sort(sortByDateAscending);
-		
-		var maxY = d3.max(data, function(d) { return d.Total; });
-		create_chart(minX,maxX,maxY,data)
-  		update_axis(minX,maxX,maxY)		
+    queue()
+      .defer(d3.csv, "Attendance.csv")
+      .await(ready);
 
 
-  				return {maxY};					});
+    function ready(error, result) {
+
+      attendance_data = result.map(function(d) {
+        return {
+          Site: d.Site,
+          date: d3.time.format("%m/%d/%Y").parse(d.Date),
+          Ministry: d.Ministry,
+          Service1: +d["Service 1 # of Attendees"],
+          Service2: +d["Service 2 # of Attendees"],
+          Service3: +d["Service 3 # of Attendees"],
+          Service4: +d["Service 4 # of Attendees"],
+          Service5: +d["Service 5 # of Attendees"],
+          Service1_Volunteers: +d["Service 1 # of Volunteers"],
+          Service2_Volunteers: +d["Service 2 # of Volunteers"],
+          Service3_Volunteers: +d["Service 3 # of Volunteers"],
+          Service4_Volunteers: +d["Service 4 # of Volunteers"],
+          Service5_Volunteers: +d["Service 5 # of Volunteers"],
+          Service1_Paid: +d["Service 1 # of Paid"],
+          Service2_Paid: +d["Service 2 # of Paid"],
+          Service3_Paid: +d["Service 3 # of Paid"],
+          Service4_Paid: +d["Service 4 # of Paid"],
+          Service5_Paid: +d["Service 5 # of Paid"],
+          Total_Adults: +d["Service 1 # of Attendees"] + +d["Service 2 # of Attendees"] + +d["Service 3 # of Attendees"] + +d["Service 4 # of Attendees"] + +d["Service 5 # of Attendees"],
+          Total_Volunteers: +d["Service 1 # of Volunteers"] + +d["Service 2 # of Volunteers"] + +d["Service 3 # of Volunteers"] + +d["Service 4 # of Volunteers"] + +d["Service 5 # of Volunteers"],
+          Total_Paid: +d["Service 1 # of Paid"] + +d["Service 2 # of Paid"] + +d["Service 3 # of Paid"] + +d["Service 4 # of Paid"] + +d["Service 5 # of Paid"],
+          Total: +d["Service 1 # of Attendees"] + +d["Service 2 # of Attendees"] + +d["Service 3 # of Attendees"] + +d["Service 4 # of Attendees"] + +d["Service 5 # of Attendees"] + +d["Service 1 # of Volunteers"] + +d[
+            "Service 2 # of Volunteers"] + +d["Service 3 # of Volunteers"] + +d["Service 4 # of Volunteers"] + +d["Service 5 # of Volunteers"] + +d["Service 1 # of Paid"] + +d["Service 2 # of Paid"] + +d["Service 3 # of Paid"] + +d[
+            "Service 4 # of Paid"] + +d["Service 5 # of Paid"],
+          Ministry: d.Ministry,
+          date_week: d3.time.sundayOfYear(d3.time.day.offset(d3.time.format("%m/%d/%Y").parse(d.Date), -1))
+
+        }
+      })
 
 
 
-  d3.select("tr#west").on("click", function() {
-  //initialize scales
-	    	d3.selectAll("tr").transition().duration(300).attr("bgcolor","white")
-		d3.select(this).transition().duration(300).attr("bgcolor","lightgreen")
-	  d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor","lightgrey")
-	  	data = attendance_data.filter(function(d) { return d.Site == "West Side"; });	
-		data = data.filter(function(d) { return d.Ministry == "Adults"; });
-		data = data.sort(sortByDateAscending);
-		
-		var maxY = d3.max(data, function(d) { return d.Total; });
-		create_chart(minX,maxX,maxY,data)
-  		update_axis(minX,maxX,maxY)		
-
-
-  				return {maxY};					});
+      //get current week
+      week = d3.time.sundayOfYear(d3.time.day.offset(new Date(), -1))
+      format = d3.time.format("%m/%d/%Y")
+      week_name = format(d3.time.sunday(d3.time.day.offset(new Date(), -1)))
+      d3.select("#week").text(week_name);
 
 
 
 
-  d3.select("tr#clifton").on("click", function() {
-  //initialize scales
-	    	d3.selectAll("tr").transition().duration(300).attr("bgcolor","white")
-		d3.select(this).transition().duration(300).attr("bgcolor","lightgreen")
-	  d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor","lightgrey")
-	  	data = attendance_data.filter(function(d) { return d.Site == "Clifton"; });	
-		data = data.filter(function(d) { return d.Ministry == "Adults"; });
-		data = data.sort(sortByDateAscending);
-		
-		var maxY = d3.max(data, function(d) { return d.Total; });
-		create_chart(minX,maxX,maxY,data)
-  		update_axis(minX,maxX,maxY)		
+      function update_table(week, year, attendance_data, site, ministry, total_name, total_last_name, year_percent_name, eight_week_name) {
+        table_row = {
+                Site: site,
+                Ministry: ministry,
+                current_week: 0,
+                last_week: 0,
+                eight_week_percent: 0,
+                one_year_percent: 0}
+        //get data subset
+        data = attendance_data
+        if (site == "total") {} else {
+          data = data.filter(function(d) {
+            return d.Site == site;
+          });
+        };
+        if (ministry == "total") {} else {
+          data = data.filter(function(d) {
+            return d.Ministry == ministry;
+          });
+        };
 
 
-  				return {maxY};					});
+        //calculate current weeks attendance
+        data_week = data.filter(function(d) {
+          return d.date.getYear() == year;
+        });
+        data_week = data_week.filter(function(d) {
+          return d.date_week == week - 1;
+        });
+
+        total = d3.sum(data_week, function(d) {
+          return d.Total;
+        })
+        d3.select(total_name).text(total);
+
+        table_row.current_week = total;
+
+
+        //calculate last year percent
+        data_year = data.filter(function(d) {
+          return d.date_week == week - 1;
+        });
+
+        data_year = data_year.filter(function(d) {
+          return d.date.getYear() == year - 1;
+        });
+        year_percent = 100 * table_row.current_week / d3.sum(data_year, function(d) {
+          return d.Total;
+        })
+        d3.select(year_percent_name).text(d3.round(year_percent, 0));
+
+        table_row.one_year_percent = year_percent
+
+
+        //calculate 8 week average
+        data_eight = data.filter(function(d) {
+          return d.date_week <= d3.time.sundayOfYear(d3.time.week.offset(new Date(), -2)) && d.date_week >= d3.time.sundayOfYear(d3.time.week.offset(new Date(), -9));
+        });
+        data_eight = data_eight.filter(function(d) {
+          return d.date.getYear() == year;
+        });
+        eight_week_percent = 100 * table_row.current_week / (d3.sum(data_eight, function(d) {
+          return d.Total;
+        })/9)
+        d3.select(eight_week_name).text(d3.round(eight_week_percent, 0));
+
+        table_row.eight_week_percent = eight_week_percent;
+
+        //calculate last weeks attendance
+        data_last = data.filter(function(d) {
+          return d.date_week == week - 2;
+        });
+        data_last = data_last.filter(function(d) {
+          return d.date.getYear() == year;
+        });
+        total = d3.sum(data_last, function(d) {
+          return d.Total;
+        })
+        d3.select(total_last_name).text(total);
+
+        table_row.last_week = total;
+
+
+      }
+
+      update_table(week, 115, attendance_data, "total", "total", "#All_total", "#All_total_last", "#year_percent", "#eight_week_percent_total")
+
+      update_table(week, 115, attendance_data, "Oakley", "total","#oakley_total", "#oakley_total_last", "#oakley_year_percent", "#oakley_eight_week_percent")
+
+      update_table(week, 115, attendance_data, "Florence", "total","#florence_total", "#florence_total_last", "#florence_year_percent", "#florence_eight_week_percent")
+
+      update_table(week, 115, attendance_data, "Clifton", "total","#clifton_total", "#clifton_total_last", "#clifton_year_percent", "#clifton_eight_week_percent")
+
+      update_table(week, 115, attendance_data, "Mason", "total","#mason_total", "#mason_total_last", "#mason_year_percent", "#mason_eight_week_percent")
+
+      update_table(week, 115, attendance_data, "West Side", "total","#west_total", "#west_total_last", "#west_year_percent", "#west_eight_week_percent")
+
+
+
+
+      var width = 800;
+      var height = 450;
+
+
+      var svgContainer = d3.select("tr#svg").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("id", "graph");
+
+      //initialize scales
+      var maxX = new Date();
+      var minX = d3.time.month.offset(maxX, -6);
+      var maxY = 100;
+
+      var scaleX = d3.time.scale()
+        .domain([minX, maxX])
+        .range([50, 750]);
+
+      var scaleY = d3.scale.linear()
+        .domain([0, maxY])
+        .range([400, 100]);
+
+
+      var yAxis = d3.svg.axis()
+        .scale(scaleY)
+        .orient("right")
+        .ticks(5);
+
+      var xAxis = d3.svg.axis()
+        .scale(scaleX)
+        .orient("Bottom")
+        .ticks(5);
+
+
+      svgContainer.append("g")
+        .attr("ID", "yAxis")
+        .attr("class", "y axis") //Assign "axis" class
+        .attr("transform", "translate(750," + (0) + ")")
+        .call(yAxis);
+
+      svgContainer.append("g")
+        .attr("ID", "xAxis")
+        .attr("class", "x axis") //Assign "axis" class
+        .attr("transform", "translate(0," + (400) + ")")
+        .call(xAxis);
+
+
+      svgContainer.append("g").attr("id", "line").append("path")
+      svgContainer.append("g").attr("id", "flag1").append("path")
+      svgContainer.select("g#flag1").append("text")
+        //svgContainer.append("g").attr("id","flag1").append("text")
+
+      d3.selectAll("tr").transition().duration(300).attr("bgcolor", "white")
+      d3.select("tr#oakley").transition().duration(300).attr("bgcolor", "lightgreen")
+      d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor", "lightgrey")
+      data = attendance_data.filter(function(d) {
+        return d.Site == "Mason";
+      });
+      data = data.filter(function(d) {
+        return d.Ministry == "Adults";
+      });
+      data = data.sort(sortByDateAscending);
+
+      var maxY = d3.max(data, function(d) {
+        return d.Total;
+      });
+      create_chart(minX, maxX, maxY, data)
+      update_axis(minX, maxX, maxY)
+
+
+      return {
+        minX
+      };
+    }
+
+    function attendance_total(d) {
+      return d.Service1 + d.Service2 + d.Service3 + d.Service4 + d.Service5
+    };
+
+    function sortByDateAscending(a, b) {
+      // Dates will be cast to numbers automagically:
+      return a.date - b.date;
+    }
+
+    d3.select("tr#mason").on("click", function() {
+      //initialize scales
+      d3.selectAll("tr").transition().duration(300).attr("bgcolor", "white")
+      d3.select(this).transition().duration(300).attr("bgcolor", "lightgreen")
+      d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor", "lightgrey")
+      data = attendance_data.filter(function(d) {
+        return d.Site == "Mason";
+      });
+      data = data.filter(function(d) {
+        return d.Ministry == "Adults";
+      });
+      data = data.sort(sortByDateAscending);
+
+      var maxY = d3.max(data, function(d) {
+        return d.Total;
+      });
+      create_chart(minX, maxX, maxY, data)
+      update_axis(minX, maxX, maxY)
+
+
+      return {
+        maxY
+      };
+    });
+
+
+
+    d3.select("tr#west").on("click", function() {
+      //initialize scales
+      d3.selectAll("tr").transition().duration(300).attr("bgcolor", "white")
+      d3.select(this).transition().duration(300).attr("bgcolor", "lightgreen")
+      d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor", "lightgrey")
+      data = attendance_data.filter(function(d) {
+        return d.Site == "West Side";
+      });
+      data = data.filter(function(d) {
+        return d.Ministry == "Adults";
+      });
+      data = data.sort(sortByDateAscending);
+
+      var maxY = d3.max(data, function(d) {
+        return d.Total;
+      });
+      create_chart(minX, maxX, maxY, data)
+      update_axis(minX, maxX, maxY)
+
+
+      return {
+        maxY
+      };
+    });
+
+
+
+
+    d3.select("tr#clifton").on("click", function() {
+      //initialize scales
+      d3.selectAll("tr").transition().duration(300).attr("bgcolor", "white")
+      d3.select(this).transition().duration(300).attr("bgcolor", "lightgreen")
+      d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor", "lightgrey")
+      data = attendance_data.filter(function(d) {
+        return d.Site == "Clifton";
+      });
+      data = data.filter(function(d) {
+        return d.Ministry == "Adults";
+      });
+      data = data.sort(sortByDateAscending);
+
+      var maxY = d3.max(data, function(d) {
+        return d.Total;
+      });
+      create_chart(minX, maxX, maxY, data)
+      update_axis(minX, maxX, maxY)
+
+
+      return {
+        maxY
+      };
+    });
 
 
 
 
 
 
-  d3.select("tr#florence").on("click", function() {
-  //initialize scales
-	    	d3.selectAll("tr").transition().duration(300).attr("bgcolor","white")
-		d3.select(this).transition().duration(300).attr("bgcolor","lightgreen") 
-	  d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor","lightgrey") 
-	  	data = attendance_data.filter(function(d) { return d.Site == "Florence"; });	
-		data = data.filter(function(d) { return d.Ministry == "Adults"; });
-		data = data.sort(sortByDateAscending);
-		
-		var maxY = d3.max(data, function(d) { return d.Total; });
-		create_chart(minX,maxX,maxY,data)
-  		update_axis(minX,maxX,maxY)		
+    d3.select("tr#florence").on("click", function() {
+      //initialize scales
+      d3.selectAll("tr").transition().duration(300).attr("bgcolor", "white")
+      d3.select(this).transition().duration(300).attr("bgcolor", "lightgreen")
+      d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor", "lightgrey")
+      data = attendance_data.filter(function(d) {
+        return d.Site == "Florence";
+      });
+      data = data.filter(function(d) {
+        return d.Ministry == "Adults";
+      });
+      data = data.sort(sortByDateAscending);
+
+      var maxY = d3.max(data, function(d) {
+        return d.Total;
+      });
+      create_chart(minX, maxX, maxY, data)
+      update_axis(minX, maxX, maxY)
 
 
 
-  				return {maxY};					});
-
-
-  
-d3.select("tr#oakley").on("click", function() {
-  //initialize scales
-	    	d3.selectAll("tr").transition().duration(300).attr("bgcolor","white")
-		d3.select(this).transition().duration(300).attr("bgcolor","lightgreen")
-	d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor","lightgrey")
-		var maxX = new Date();
-				var minX = d3.time.month.offset(maxX, -6);
-	  	data = attendance_data.filter(function(d) { return d.Site == "Oakley"; });	
-		data = data.filter(function(d) { return d.Ministry == "Adults"; });
-		
-		
-		data = data.sort(sortByDateAscending);
-		
-		var maxY = d3.max(data, function(d) { return d.Total; });
- 		create_chart(minX,maxX,maxY,data)
-  		update_axis(minX,maxX,maxY)		
+      return {
+        maxY
+      };
+    });
 
 
 
-  				return {maxY};					});
-
- 
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  function create_chart(minX,maxX,maxY,data)		{
- svgContainer = d3.select("svg#graph")
- 
- var scaleX = d3.time.scale()
- 		           .domain([minX,maxX])
- 		           .range([50,750]);
-
- var scaleY = d3.scale.linear()
- 		           .domain([0,maxY*1.1])
- 		           .range([400,100]);
-					
-		var lineFunction = d3.svg.line()
-						                            .x(function(d) { return scaleX(d.date); })
-						                            .y(function(d) { return scaleY(d.Total); })
-						                            .interpolate("linear");
-											
-					
-				  var line = svgContainer.select("g#line").selectAll("path")
-				  			                        .data(data);
-						
-
-				  //The line SVG Path we draw
+    d3.select("tr#oakley").on("click", function() {
+      //initialize scales
+      d3.selectAll("tr").transition().duration(300).attr("bgcolor", "white")
+      d3.select(this).transition().duration(300).attr("bgcolor", "lightgreen")
+      d3.selectAll("tr#legend").transition().duration(300).attr("bgcolor", "lightgrey")
+      var maxX = new Date();
+      var minX = d3.time.month.offset(maxX, -6);
+      data = attendance_data.filter(function(d) {
+        return d.Site == "Oakley";
+      });
+      data = data.filter(function(d) {
+        return d.Ministry == "Adults";
+      });
 
 
-				  var lineAttr = line
-				                              .attr("d", lineFunction(data))
-                
-				                              .attr("stroke", "lightgreen")
-				                              .attr("stroke-width", 2)
-				                              .attr("fill", "none")
-											  .attr("opacity","1")
-													
-				  week = d3.time.sundayOfYear(d3.time.week.offset(new Date(),-8))
-				  //flag_raw_data = data.filter(function(d) { return d.Site == "Oakley"; });	
-				  flag_raw_data = data.filter(function(d) { return d.date_week == week; });
-				  flag_raw_data = flag_raw_data.filter(function(d) { return d.date.getYear() == 115; });
-				  
-				  total = d3.sum(flag_raw_data,function(d) {return d.Total;})
-				   
-											  
-					flag1_data = [
-						{date:d3.time.sunday(d3.time.week.offset(new Date(),-7)),Total:total},
-						{date:d3.time.sunday(d3.time.week.offset(new Date(),-7)),Total:maxY*1.1 }
-								]
-								
-					flag1 = svgContainer.select("g#flag1").selectAll("path")
-				  			                        .data(flag1_data);
-													
-					
-				  var flag1Attr = flag1
-				                              .attr("d", lineFunction(flag1_data))
-                
-				                              .attr("stroke", "black")
-				                              .attr("stroke-width", 1)
-				                              .attr("fill", "none")
-											  .attr("opacity","1")	
-													
-					var text = 	svgContainer.select("g#flag1").selectAll("text")
-													.data(flag1_data[1]);
-													
-					var textAttr = text
-													.attr("x", function(d) { return  scaleX(d.date); })
-													.attr("y", function(d) { return  scaleY(d.Total); })
-													.text( "8 weeks ago")
-													
-					
+      data = data.sort(sortByDateAscending);
 
-		//var circle = svgContainer.selectAll("circle")
-		//									  .data(data);
-		                  //      .enter()
-		                  //      .append("circle");
-						
-						
-		//  var circlesAttr = circle
-		  //                 .attr("cx", function(d) { return scaleX(d.date); })
-		    //               .attr("cy", function(d) { return scaleY(attendance_total(d)); })
-		      //             .attr("r", "5")
-		        //           .attr("fill", "darkgreen")
-						
-						
+      var maxY = d3.max(data, function(d) {
+        return d.Total;
+      });
+      create_chart(minX, maxX, maxY, data)
+      update_axis(minX, maxX, maxY)
 
-											
-											
-											};						
-	
-  d3.select("td#m3").on("click", function() {
-//  var maxX = d3.max(data, function(d) { return d.date; });
-	var minX = d3.time.month.offset(maxX, -3);
-	var maxY = d3.max(data, function(d) { return attendance_total(d); });
-	update_axis(minX,maxX,maxY)
-	});
-	
+
+
+      return {
+        maxY
+      };
+    });
+
+
+
+
+
+
+
+
+
+    function create_chart(minX, maxX, maxY, data) {
+      svgContainer = d3.select("svg#graph")
+
+      var scaleX = d3.time.scale()
+        .domain([minX, maxX])
+        .range([50, 750]);
+
+      var scaleY = d3.scale.linear()
+        .domain([0, maxY * 1.1])
+        .range([400, 100]);
+
+      var lineFunction = d3.svg.line()
+        .x(function(d) {
+          return scaleX(d.date);
+        })
+        .y(function(d) {
+          return scaleY(d.Total);
+        })
+        .interpolate("linear");
+
+
+      var line = svgContainer.select("g#line").selectAll("path")
+        .data(data);
+
+
+      //The line SVG Path we draw
+
+
+      var lineAttr = line
+        .attr("d", lineFunction(data))
+
+      .attr("stroke", "lightgreen")
+        .attr("stroke-width", 2)
+        .attr("fill", "none")
+        .attr("opacity", "1")
+
+      week = d3.time.sundayOfYear(d3.time.week.offset(new Date(), -8))
+        //flag_raw_data = data.filter(function(d) { return d.Site == "Oakley"; });
+      flag_raw_data = data.filter(function(d) {
+        return d.date_week == week;
+      });
+      flag_raw_data = flag_raw_data.filter(function(d) {
+        return d.date.getYear() == 115;
+      });
+
+      total = d3.sum(flag_raw_data, function(d) {
+        return d.Total;
+      })
+
+
+      flag1_data = [{
+        date: d3.time.sunday(d3.time.week.offset(new Date(), -7)),
+        Total: total
+      }, {
+        date: d3.time.sunday(d3.time.week.offset(new Date(), -7)),
+        Total: maxY * 1.1
+      }]
+
+      flag1 = svgContainer.select("g#flag1").selectAll("path")
+        .data(flag1_data);
+
+
+      var flag1Attr = flag1
+        .attr("d", lineFunction(flag1_data))
+
+      .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .attr("fill", "none")
+        .attr("opacity", "1")
+
+      var text = svgContainer.select("g#flag1").selectAll("text")
+        .data(flag1_data[1]);
+
+      var textAttr = text
+        .attr("x", function(d) {
+          return scaleX(d.date);
+        })
+        .attr("y", function(d) {
+          return scaleY(d.Total);
+        })
+        .text("8 weeks ago")
+
+
+
+      //var circle = svgContainer.selectAll("circle")
+      //									  .data(data);
+      //      .enter()
+      //      .append("circle");
+
+
+      //  var circlesAttr = circle
+      //                 .attr("cx", function(d) { return scaleX(d.date); })
+      //               .attr("cy", function(d) { return scaleY(attendance_total(d)); })
+      //             .attr("r", "5")
+      //           .attr("fill", "darkgreen")
+
+
+
+
+
+    };
+
+    d3.select("td#m3").on("click", function() {
+      //  var maxX = d3.max(data, function(d) { return d.date; });
+      var minX = d3.time.month.offset(maxX, -3);
+      var maxY = d3.max(data, function(d) {
+        return attendance_total(d);
+      });
+      update_axis(minX, maxX, maxY)
+    });
+
     d3.select("td#m6").on("click", function() {
-  //  var maxX = d3.max(data, function(d) { return d.date; });
-  	var minX = d3.time.month.offset(maxX, -6);
-  	var maxY = d3.max(data, function(d) { return attendance_total(d); });
-  	update_axis(minX,maxX,maxY)
-  	});
+      //  var maxX = d3.max(data, function(d) { return d.date; });
+      var minX = d3.time.month.offset(maxX, -6);
+      var maxY = d3.max(data, function(d) {
+        return attendance_total(d);
+      });
+      update_axis(minX, maxX, maxY)
+    });
 
 
     d3.select("td#m12").on("click", function() {
-  //  var maxX = d3.max(data, function(d) { return d.date; });
-  	var minX = d3.time.month.offset(maxX, -12);
-  	var maxY = d3.max(data, function(d) { return attendance_total(d); });
-  	update_axis(minX,maxX,maxY)
-  	});	
-	
+      //  var maxX = d3.max(data, function(d) { return d.date; });
+      var minX = d3.time.month.offset(maxX, -12);
+      var maxY = d3.max(data, function(d) {
+        return attendance_total(d);
+      });
+      update_axis(minX, maxX, maxY)
+    });
+
     d3.select("td#mall").on("click", function() {
-  //  var maxX = d3.max(data, function(d) { return d.date; });
-  	var minX = d3.min(data, function(d) { return d.date; });
-  	var maxY = d3.max(data, function(d) { return attendance_total(d); });
-  	update_axis(minX,maxX,maxY)
-  	});	
-
-
-											   
-
-  function update_axis(minX,maxX,maxY) {											
-
- svgContainer = d3.select("svg#graph")
-var scaleX = d3.time.scale()
-		           .domain([minX,maxX])
-		           .range([50,750]);
-
-var scaleY = d3.scale.linear()
-		           .domain([0,maxY*1.1])
-		           .range([400,100]);
-			   
-			   
-						       var yAxis = d3.svg.axis()
-						                         .scale(scaleY)
-						                         .orient("right")
-						     					.ticks(5);
-			
-						    var xAxis = d3.svg.axis()
-												
-						                      .scale(scaleX)
-						                      .orient("Bottom")
-						  					.ticks(5);
-			
-			
-						  			    svgContainer.select("g.y.axis")
-						  			  									  .attr("ID","yAxis")
-						  			        .attr("class", "y axis") //Assign "axis" class
-						  			        .attr("transform", "translate(750," + (0) + ")")
-											.transition().duration(3000)
-						  			        .call(yAxis);
-
-						  			    svgContainer.select("g.x.axis")
-						  			  	  .attr("ID","xAxis")
-						  			        .attr("class", "x axis") //Assign "axis" class
-						  			        .attr("transform", "translate(0," + (400) + ")")
-											.transition().duration(3000)
-						  			        .call(xAxis);
-											
-											
-								var circle = svgContainer.selectAll("circle")
-			var circleAttr = circle		
-				.transition().duration(3000)						
-                   .attr("cx", function(d) { return scaleX(d.date); })
-                   .attr("cy", function(d) { return scaleY(d.Total); })
-var lineFunction = d3.svg.line()
-				                            .x(function(d) { return scaleX(d.date); })
-				                            .y(function(d) { return scaleY(d.Total); })
-				                            .interpolate("linear");
-											
-											
-		var line = svgContainer.select("g#line").selectAll("path")	
-															
-		  var lineAttr = line
-								.transition().duration(3000)
-		                              .attr("d", lineFunction(data))
-											
-		
-		
-		var flag1 = svgContainer.select("g#flag1").selectAll("path")	
-															
-		  var flag1Attr = flag1
-								.transition().duration(3000)
-		                              .attr("d", lineFunction(flag1_data))
-											
-								//return {scaleX,scaleY}	
-		
+      //  var maxX = d3.max(data, function(d) { return d.date; });
+      var minX = d3.min(data, function(d) {
+        return d.date;
+      });
+      var maxY = d3.max(data, function(d) {
+        return attendance_total(d);
+      });
+      update_axis(minX, maxX, maxY)
+    });
 
 
 
-											
-											
-};
+
+    function update_axis(minX, maxX, maxY) {
+
+      svgContainer = d3.select("svg#graph")
+      var scaleX = d3.time.scale()
+        .domain([minX, maxX])
+        .range([50, 750]);
+
+      var scaleY = d3.scale.linear()
+        .domain([0, maxY * 1.1])
+        .range([400, 100]);
+
+
+      var yAxis = d3.svg.axis()
+        .scale(scaleY)
+        .orient("right")
+        .ticks(5);
+
+      var xAxis = d3.svg.axis()
+
+      .scale(scaleX)
+        .orient("Bottom")
+        .ticks(5);
+
+
+      svgContainer.select("g.y.axis")
+        .attr("ID", "yAxis")
+        .attr("class", "y axis") //Assign "axis" class
+        .attr("transform", "translate(750," + (0) + ")")
+        .transition().duration(3000)
+        .call(yAxis);
+
+      svgContainer.select("g.x.axis")
+        .attr("ID", "xAxis")
+        .attr("class", "x axis") //Assign "axis" class
+        .attr("transform", "translate(0," + (400) + ")")
+        .transition().duration(3000)
+        .call(xAxis);
+
+
+      var circle = svgContainer.selectAll("circle")
+      var circleAttr = circle
+        .transition().duration(3000)
+        .attr("cx", function(d) {
+          return scaleX(d.date);
+        })
+        .attr("cy", function(d) {
+          return scaleY(d.Total);
+        })
+      var lineFunction = d3.svg.line()
+        .x(function(d) {
+          return scaleX(d.date);
+        })
+        .y(function(d) {
+          return scaleY(d.Total);
+        })
+        .interpolate("linear");
+
+
+      var line = svgContainer.select("g#line").selectAll("path")
+
+      var lineAttr = line
+        .transition().duration(3000)
+        .attr("d", lineFunction(data))
+
+
+
+      var flag1 = svgContainer.select("g#flag1").selectAll("path")
+
+      var flag1Attr = flag1
+        .transition().duration(3000)
+        .attr("d", lineFunction(flag1_data))
+
+      //return {scaleX,scaleY}
+
+
+
+
+
+
+    };
   </script>
-  
-  
-  
-  
-</p>
-	  
-  </body>
+
+
+
+
+  </p>
+
+</body>
+
 </html>
